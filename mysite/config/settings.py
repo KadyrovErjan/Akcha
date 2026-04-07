@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'apps.finance',
     'apps.goals',
     'apps.analytics',
+    'apps.web',
 ]
 
 MIDDLEWARE = [
@@ -44,7 +45,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -91,3 +92,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_DIRS = [BASE_DIR / 'static']   # ← добавить
+STATIC_ROOT = BASE_DIR / 'staticfiles'

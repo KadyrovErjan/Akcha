@@ -1,0 +1,50 @@
+{% extends 'akchaai/base.html' %}
+{% block title %}Профиль — AkchaAI{% endblock %}
+{% block page_title %}Профиль{% endblock %}
+
+{% block content %}
+<div class="page-layout narrow">
+
+  <div class="card profile-card">
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar-big">{{ request.user.username|first|upper }}</div>
+      <div>
+        <h2 class="profile-username">{{ request.user.username }}</h2>
+        <p class="profile-email">{{ request.user.email|default:"Email не указан" }}</p>
+      </div>
+    </div>
+
+    <form method="post" class="auth-form mt-lg">
+      {% csrf_token %}
+      <div class="field-group">
+        <label class="field-label">Email</label>
+        <input type="email" name="email" class="field-input" value="{{ request.user.email }}" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Ежемесячный доход (сом)</label>
+        <input type="number" name="income" class="field-input" value="{{ request.user.income }}" min="0" step="0.01" />
+      </div>
+      <button type="submit" class="btn-primary">Сохранить изменения</button>
+    </form>
+  </div>
+
+  <div class="card stats-summary-card">
+    <div class="card-header"><span class="card-title">Сводка аккаунта</span></div>
+    <div class="summary-row">
+      <div class="summary-item">
+        <span class="si-num">{{ expense_count }}</span>
+        <span class="si-label">Расходов</span>
+      </div>
+      <div class="summary-item">
+        <span class="si-num">{{ goal_count }}</span>
+        <span class="si-label">Целей</span>
+      </div>
+      <div class="summary-item">
+        <span class="si-num">{{ request.user.income|floatformat:0 }}</span>
+        <span class="si-label">Доход / мес</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

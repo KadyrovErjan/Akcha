@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}AkchaAI{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+</head>
+<body>
+
+<div class="noise"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">₸</span>
+    <span class="logo-text">Akcha<em>AI</em></span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="{% url 'dashboard' %}" class="nav-item {% block nav_dashboard %}{% endblock %}">
+      <span class="nav-icon">⬡</span>
+      <span>Дашборд</span>
+    </a>
+    <a href="{% url 'expenses' %}" class="nav-item {% block nav_expenses %}{% endblock %}">
+      <span class="nav-icon">↗</span>
+      <span>Расходы</span>
+    </a>
+    <a href="{% url 'goals' %}" class="nav-item {% block nav_goals %}{% endblock %}">
+      <span class="nav-icon">◎</span>
+      <span>Цели</span>
+    </a>
+    <a href="{% url 'analytics' %}" class="nav-item {% block nav_analytics %}{% endblock %}">
+      <span class="nav-icon">◈</span>
+      <span>Аналитика</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+    <div class="user-info">
+      <span class="user-name">{{ request.user.username }}</span>
+      <span class="user-income">{{ request.user.income }} сом/мес</span>
+    </div>
+    <a href="{% url 'logout' %}" class="logout-btn" title="Выйти">⏻</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+  <header class="topbar">
+    <button class="burger" id="burgerBtn">☰</button>
+    <div class="page-title">{% block page_title %}{% endblock %}</div>
+    <div class="topbar-right">
+      <a href="{% url 'profile' %}" class="profile-link">Профиль</a>
+    </div>
+  </header>
+
+  <div class="content-area">
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

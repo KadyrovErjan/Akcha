@@ -1,0 +1,150 @@
+{% extends 'akchaai/base.html' %}
+{% block title %}Дашборд — AkchaAI{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block page_title %}Дашборд{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+
+  <!-- KPI CARDS -->
+  <div class="kpi-row">
+    <div class="kpi-card accent-green">
+      <span class="kpi-label">Доход</span>
+      <span class="kpi-value">{{ stats.income|floatformat:0 }}<small>сом</small></span>
+      <span class="kpi-icon">↑</span>
+    </div>
+    <div class="kpi-card accent-red">
+      <span class="kpi-label">Расходы</span>
+      <span class="kpi-value">{{ stats.total_expense|floatformat:0 }}<small>сом</small></span>
+      <span class="kpi-icon">↗</span>
+    </div>
+    <div class="kpi-card {% if stats.balance >= 0 %}accent-blue{% else %}accent-orange{% endif %}">
+      <span class="kpi-label">Остаток</span>
+      <span class="kpi-value">{{ stats.balance|floatformat:0 }}<small>сом</small></span>
+      <span class="kpi-icon">◎</span>
+    </div>
+    <div class="kpi-card accent-purple">
+      <span class="kpi-label">Накоплено</span>
+      <span class="kpi-value">{{ stats.total_saved|floatformat:0 }}<small>сом</small></span>
+      <span class="kpi-icon">◈</span>
+    </div>
+  </div>
+
+  <!-- CHART + INSIGHTS -->
+  <div class="mid-row">
+    <!-- Donut Chart -->
+    <div class="card chart-card">
+      <div class="card-header">
+        <span class="card-title">По категориям</span>
+      </div>
+      <div class="donut-wrap">
+        <canvas id="categoryChart" width="220" height="220"></canvas>
+        <div class="donut-center">
+          <span class="dc-label">Всего</span>
+          <span class="dc-value">{{ stats.total_expense|floatformat:0 }}</span>
+        </div>
+      </div>
+      <div class="chart-legend">
+        {% for key, val in stats.by_category.items %}
+        <div class="legend-item">
+          <span class="legend-dot cat-{{ key }}"></span>
+          <span class="legend-label">{{ val.label }}</span>
+          <span class="legend-amount">{{ val.amount|floatformat:0 }} сом</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="card insights-card">
+      <div class="card-header">
+        <span class="card-title">AI Инсайты</span>
+        <span class="ai-badge">AI</span>
+      </div>
+      <div class="insights-list">
+        {% if stats.insights %}
+          {% for ins in stats.insights %}
+          <div class="insight-item insight-{{ ins.type }}">
+            <span class="insight-icon">
+              {% if ins.type == 'warning' %}⚠{% elif ins.type == 'danger' %}✕{% else %}✓{% endif %}
+            </span>
+            <p>{{ ins.message }}</p>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="insight-item insight-success">
+            <span class="insight-icon">✓</span>
+            <p>Всё отлично! Финансы в норме.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- LAST EXPENSES -->
+  <div class="card expenses-card">
+    <div class="card-header">
+      <span class="card-title">Последние расходы</span>
+      <a href="{% url 'expenses' %}" class="card-link">Все →</a>
+    </div>
+    {% if recent_expenses %}
+    <table class="data-table">
+      <thead>
+        <tr><th>Название</th><th>Категория</th><th>Дата</th><th>Сумма</th></tr>
+      </thead>
+      <tbody>
+        {% for exp in recent_expenses %}
+        <tr>
+          <td>{{ exp.title }}</td>
+          <td><span class="badge cat-{{ exp.category }}">{{ exp.get_category_display }}</span></td>
+          <td class="text-muted">{{ exp.date }}</td>
+          <td class="text-bold">{{ exp.amount|floatformat:2 }} сом</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty-msg">Расходов ещё нет. <a href="{% url 'expenses' %}">Добавить →</a></p>
+    {% endif %}
+  </div>
+
+  <!-- GOALS -->
+  <div class="card goals-dash-card">
+    <div class="card-header">
+      <span class="card-title">Финансовые цели</span>
+      <a href="{% url 'goals' %}" class="card-link">Все →</a>
+    </div>
+    {% if goals %}
+      {% for goal in goals %}
+      <div class="goal-item">
+        <div class="goal-top">
+          <span class="goal-name">{{ goal.title }}</span>
+          <span class="goal-pct">{{ goal.progress_percent }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: {{ goal.progress_percent }}%"></div>
+        </div>
+        <div class="goal-amounts">
+          <span>{{ goal.current_amount|floatformat:0 }} сом</span>
+          <span class="text-muted">из {{ goal.target_amount|floatformat:0 }} сом</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty-msg">Целей ещё нет. <a href="{% url 'goals' %}">Создать →</a></p>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+const categoryData = {
+  {% for key, val in stats.by_category.items %}
+  "{{ key }}": { label: "{{ val.label }}", amount: {{ val.amount }} },
+  {% endfor %}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% load static %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

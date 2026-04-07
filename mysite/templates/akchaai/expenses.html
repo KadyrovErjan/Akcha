@@ -1,0 +1,104 @@
+{% extends 'akchaai/base.html' %}
+{% block title %}Расходы — AkchaAI{% endblock %}
+{% block nav_expenses %}active{% endblock %}
+{% block page_title %}Расходы{% endblock %}
+
+{% block content %}
+<div class="page-layout">
+
+  <!-- ADD FORM -->
+  <div class="card form-card">
+    <div class="card-header">
+      <span class="card-title">Добавить расход</span>
+    </div>
+    <form method="post" action="{% url 'expense_create' %}" class="inline-form">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="field-group">
+          <label class="field-label">Название</label>
+          <input type="text" name="title" class="field-input" placeholder="Кофе, такси..." required />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Сумма (сом)</label>
+          <input type="number" name="amount" class="field-input" placeholder="0.00" min="0" step="0.01" required />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Категория</label>
+          <select name="category" class="field-input field-select">
+            <option value="food">🍔 Еда</option>
+            <option value="transport">🚌 Транспорт</option>
+            <option value="fun">🎮 Развлечения</option>
+            <option value="education">📚 Образование</option>
+            <option value="other">📦 Другое</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Заметка</label>
+          <input type="text" name="note" class="field-input" placeholder="Необязательно" />
+        </div>
+        <div class="field-group field-submit">
+          <label class="field-label">&nbsp;</label>
+          <button type="submit" class="btn-primary">+ Добавить</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-bar">
+    <form method="get" class="filter-form">
+      <select name="category" class="filter-select" onchange="this.form.submit()">
+        <option value="">Все категории</option>
+        <option value="food" {% if request.GET.category == 'food' %}selected{% endif %}>Еда</option>
+        <option value="transport" {% if request.GET.category == 'transport' %}selected{% endif %}>Транспорт</option>
+        <option value="fun" {% if request.GET.category == 'fun' %}selected{% endif %}>Развлечения</option>
+        <option value="education" {% if request.GET.category == 'education' %}selected{% endif %}>Образование</option>
+        <option value="other" {% if request.GET.category == 'other' %}selected{% endif %}>Другое</option>
+      </select>
+      <input type="date" name="date" class="filter-input" value="{{ request.GET.date }}" onchange="this.form.submit()" />
+      {% if request.GET.category or request.GET.date %}
+        <a href="{% url 'expenses' %}" class="filter-reset">✕ Сбросить</a>
+      {% endif %}
+    </form>
+    <span class="filter-count">{{ expenses.count }} записей</span>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card">
+    {% if expenses %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Категория</th>
+          <th>Заметка</th>
+          <th>Дата</th>
+          <th>Сумма</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for exp in expenses %}
+        <tr class="table-row">
+          <td class="text-bold">{{ exp.title }}</td>
+          <td><span class="badge cat-{{ exp.category }}">{{ exp.get_category_display }}</span></td>
+          <td class="text-muted">{{ exp.note|default:"—" }}</td>
+          <td class="text-muted">{{ exp.date }}</td>
+          <td class="text-bold amount-cell">{{ exp.amount|floatformat:2 }} сом</td>
+          <td class="actions-cell">
+            <a href="{% url 'expense_delete' exp.pk %}" class="btn-danger-sm" onclick="return confirm('Удалить расход?')">✕</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div class="empty-state">
+        <span class="empty-icon">↗</span>
+        <p>Расходов ещё нет.<br/>Добавьте первый выше.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

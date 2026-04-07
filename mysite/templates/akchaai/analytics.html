@@ -1,0 +1,113 @@
+{% extends 'akchaai/base.html' %}
+{% block title %}Аналитика — AkchaAI{% endblock %}
+{% block nav_analytics %}active{% endblock %}
+{% block page_title %}Аналитика{% endblock %}
+
+{% block content %}
+<div class="page-layout">
+
+  <div class="analytics-grid">
+
+    <!-- BAR CHART -->
+    <div class="card chart-card wide">
+      <div class="card-header">
+        <span class="card-title">Расходы по категориям</span>
+        <span class="ai-badge">AI</span>
+      </div>
+      <div class="bar-chart-wrap">
+        <canvas id="barChart" height="280"></canvas>
+      </div>
+    </div>
+
+    <!-- INSIGHTS FULL -->
+    <div class="card insights-full">
+      <div class="card-header">
+        <span class="card-title">Персональные инсайты</span>
+      </div>
+      <div class="insights-list">
+        {% if stats.insights %}
+          {% for ins in stats.insights %}
+          <div class="insight-item insight-{{ ins.type }}">
+            <span class="insight-icon">
+              {% if ins.type == 'warning' %}⚠{% elif ins.type == 'danger' %}✕{% else %}✓{% endif %}
+            </span>
+            <div>
+              <strong>{% if ins.type == 'warning' %}Внимание{% elif ins.type == 'danger' %}Опасность{% else %}Отлично{% endif %}</strong>
+              <p>{{ ins.message }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="insight-item insight-success">
+            <span class="insight-icon">✓</span>
+            <p>Финансовое состояние в норме. Продолжайте в том же духе!</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- SUMMARY TABLE -->
+    <div class="card summary-table-card">
+      <div class="card-header">
+        <span class="card-title">Детали по категориям</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Категория</th><th>Сумма</th><th>% от дохода</th><th>% от расходов</th></tr>
+        </thead>
+        <tbody>
+          {% for key, val in stats.by_category.items %}
+          <tr>
+            <td><span class="badge cat-{{ key }}">{{ val.label }}</span></td>
+            <td class="text-bold">{{ val.amount|floatformat:2 }} сом</td>
+            <td class="text-muted">
+              {% if stats.income > 0 %}
+                {% widthratio val.amount stats.income 100 %}%
+              {% else %}—{% endif %}
+            </td>
+            <td class="text-muted">
+              {% if stats.total_expense > 0 %}
+                {% widthratio val.amount stats.total_expense 100 %}%
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="table-total">
+            <td>Итого</td>
+            <td class="text-bold">{{ stats.total_expense|floatformat:2 }} сом</td>
+            <td></td><td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- BALANCE CARD -->
+    <div class="card balance-big-card">
+      <div class="card-header"><span class="card-title">Финансовый баланс</span></div>
+      <div class="balance-display {% if stats.balance >= 0 %}pos{% else %}neg{% endif %}">
+        <span class="balance-sign">{% if stats.balance >= 0 %}+{% endif %}</span>
+        <span class="balance-amount">{{ stats.balance|floatformat:0 }}</span>
+        <span class="balance-currency">сом</span>
+      </div>
+      <div class="balance-meta">
+        <div class="bm-item"><span>Доход</span><strong>{{ stats.income|floatformat:0 }} сом</strong></div>
+        <div class="bm-divider">−</div>
+        <div class="bm-item"><span>Расходы</span><strong>{{ stats.total_expense|floatformat:0 }} сом</strong></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const analyticsData = {
+  labels: [{% for key, val in stats.by_category.items %}"{{ val.label }}",{% endfor %}],
+  amounts: [{% for key, val in stats.by_category.items %}{{ val.amount }},{% endfor %}],
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% load static %}
+<script src="{% static 'js/analytics.js' %}"></script>
+{% endblock %}

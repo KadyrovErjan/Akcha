@@ -1,0 +1,102 @@
+{% extends 'akchaai/base.html' %}
+{% block title %}Цели — AkchaAI{% endblock %}
+{% block nav_goals %}active{% endblock %}
+{% block page_title %}Финансовые цели{% endblock %}
+
+{% block content %}
+<div class="page-layout">
+
+  <!-- ADD GOAL -->
+  <div class="card form-card">
+    <div class="card-header">
+      <span class="card-title">Новая цель</span>
+    </div>
+    <form method="post" action="{% url 'goal_create' %}" class="inline-form">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="field-group">
+          <label class="field-label">Название цели</label>
+          <input type="text" name="title" class="field-input" placeholder="Новый iPhone, Отпуск..." required />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Целевая сумма (сом)</label>
+          <input type="number" name="target_amount" class="field-input" placeholder="50000" min="1" step="0.01" required />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Уже накоплено (сом)</label>
+          <input type="number" name="current_amount" class="field-input" placeholder="0" min="0" step="0.01" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Дедлайн</label>
+          <input type="date" name="deadline" class="field-input" />
+        </div>
+        <div class="field-group field-submit">
+          <label class="field-label">&nbsp;</label>
+          <button type="submit" class="btn-primary">+ Создать</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- GOALS GRID -->
+  {% if goals %}
+  <div class="goals-grid">
+    {% for goal in goals %}
+    <div class="goal-card">
+      <div class="goal-card-top">
+        <h3 class="goal-card-title">{{ goal.title }}</h3>
+        {% if goal.deadline %}
+          <span class="goal-deadline">до {{ goal.deadline }}</span>
+        {% endif %}
+      </div>
+
+      <div class="goal-ring-wrap">
+        <svg class="goal-ring" viewBox="0 0 100 100">
+          <circle class="ring-bg" cx="50" cy="50" r="42" />
+          <circle class="ring-fill" cx="50" cy="50" r="42"
+            stroke-dasharray="{{ goal.progress_percent|floatformat:1 }} {{ 100|add:"-0" }}"
+            style="stroke-dasharray: calc({{ goal.progress_percent }} * 2.639) 263.9" />
+        </svg>
+        <div class="ring-label">
+          <span class="ring-pct">{{ goal.progress_percent }}%</span>
+        </div>
+      </div>
+
+      <div class="goal-card-amounts">
+        <div>
+          <span class="gca-num">{{ goal.current_amount|floatformat:0 }}</span>
+          <span class="gca-label">накоплено</span>
+        </div>
+        <div class="gca-divider">из</div>
+        <div>
+          <span class="gca-num">{{ goal.target_amount|floatformat:0 }}</span>
+          <span class="gca-label">цель</span>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" style="width: {{ goal.progress_percent }}%"></div>
+      </div>
+
+      <!-- Update form -->
+      <form method="post" action="{% url 'goal_deposit' goal.pk %}" class="deposit-form">
+        {% csrf_token %}
+        <input type="number" name="amount" class="field-input sm" placeholder="Пополнить..." min="0" step="0.01" />
+        <button type="submit" class="btn-accent-sm">+ Пополнить</button>
+      </form>
+
+      <div class="goal-card-actions">
+        <a href="{% url 'goal_delete' goal.pk %}" class="btn-danger-sm" onclick="return confirm('Удалить цель?')">Удалить</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty-state large">
+      <span class="empty-icon">◎</span>
+      <p>Целей ещё нет.<br/>Создайте первую цель выше.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

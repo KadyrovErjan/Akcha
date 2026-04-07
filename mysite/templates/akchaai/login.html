@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Вход — AkchaAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+</head>
+<body class="auth-body">
+<div class="noise"></div>
+
+<div class="auth-split">
+  <!-- LEFT HERO -->
+  <div class="auth-hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-content">
+      <div class="hero-logo">
+        <span class="logo-icon large">₸</span>
+        <span class="logo-text large">Akcha<em>AI</em></span>
+      </div>
+      <p class="hero-tagline">Умный учёт денег.<br/>Финансы под контролем.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="hs-num">∞</span><span class="hs-label">Транзакций</span></div>
+        <div class="hero-stat"><span class="hs-num">AI</span><span class="hs-label">Аналитика</span></div>
+        <div class="hero-stat"><span class="hs-num">0₸</span><span class="hs-label">Скрытых платежей</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT FORM -->
+  <div class="auth-form-wrap">
+    <div class="auth-card">
+      <h1 class="auth-title">С возвращением</h1>
+      <p class="auth-sub">Войдите в свой аккаунт</p>
+
+      {% if form.errors %}
+        <div class="alert alert-danger">Неверный логин или пароль.</div>
+      {% endif %}
+
+      <form method="post" class="auth-form">
+        {% csrf_token %}
+        <div class="field-group">
+          <label class="field-label">Имя пользователя</label>
+          <input type="text" name="username" class="field-input" placeholder="username" required autofocus />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Пароль</label>
+          <input type="password" name="password" class="field-input" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary full">Войти →</button>
+      </form>
+
+      <p class="auth-switch">Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
